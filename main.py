@@ -12,15 +12,12 @@ import extract
 
 
 if __name__ == "__main__":
-    raw_dfs = extract_data()
+    pass
+    # raw_dfs = extract_data()
 
 
-
-
-
-
-    if raw_dfs is not None:
-        print(raw_dfs['gs_inv'].info())
-        print(raw_dfs['gs_cm'].info())
-        print(raw_dfs['pn_inv'].info())
-        print(raw_dfs['pn_cm'].info())
+    # if raw_dfs is not None:
+    #     print(raw_dfs['gs_inv'].info())
+    #     print(raw_dfs['gs_cm'].info())
+    #     print(raw_dfs['pn_inv'].info())
+    #     print(raw_dfs['pn_cm'].info())
