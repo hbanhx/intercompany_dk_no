@@ -2,27 +2,48 @@ import pyodbc
 from dotenv import load_dotenv
 import os
 import pandas as pd
+import openpyxl
 
 load_dotenv()
 
 def get_connection(prefix):
+    gs_driver = os.getenv(f"{prefix}_DRIVER")
     gs_server = os.getenv(f"{prefix}_SERVER")
     gs_database = os.getenv(f"{prefix}_DB")
-
     conn = pyodbc.connect(
-        f'DRIVER={{ODBC Driver 17 for SQL Server}};'
+        f'DRIVER={gs_driver};'
         f'SERVER={gs_server};'
         f'DATABASE={gs_database};'
         f'Trusted_Connection=yes;'
         )
     return conn
 
-conn = get_connection("GS") 
-print(conn)
+def create_df(connection_prefix, db):
+    # Establish connection and execute query to create DataFrame
+    conn = get_connection(connection_prefix)
+    raw_df = pd.read_sql_query(db, conn)
+    return raw_df       
 
-raw_data = pd.read_sql_query("SELECT * FROM [dbo].[gs_sales_invoice]", conn)
+def extract_data():
+    # SQL statements for each table
+    sql_gs_inv = 'SELECT * FROM [dbo].[gs_sales_invoice]'
+    sql_gs_cm = 'SELECT * FROM [dbo].[gs_sales_credit_memo]'
+    sql_pn_inv = 'SELECT * FROM [dbo].[pn_sales_invoice]'
+    sql_pn_cm = 'SELECT * FROM [dbo].[pn_sales_credit_memo]'
+    
+    # Create DataFrames for each table and return as a dictionary
+    return {
+        'gs_inv': create_df('GS', sql_gs_inv),
+        'gs_cm': create_df('GS', sql_gs_cm),
+        'pn_inv': create_df('PN', sql_pn_inv),
+        'pn_cm': create_df('PN', sql_pn_cm)
+    }
 
-
-# df = pd.DataFrame()
-print(raw_data.head())
-print(raw_data.info())
+# # Example usage
+# dfs = extract_data()
+# base = os.path.dirname(os.path.abspath(__file__))
+# dfs['gs_inv'].to_excel(os.path.join(base, 'gs_sales_invoice.xlsx'), index=False)
+# print(dfs['gs_inv'].info())
+# print(dfs['gs_cm'].info())
+# print(dfs['pn_inv'].info())
+# print(dfs ['pn_cm'].info())
