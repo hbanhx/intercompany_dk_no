@@ -20,7 +20,7 @@ def get_connection(prefix):
 conn = get_connection("GS") 
 print(conn)
 
-raw_data = pd.read_sql_query("SELECT * FROM [dbo].[Sales Invoices GS$]", conn)
+raw_data = pd.read_sql_query("SELECT * FROM [dbo].[gs_sales_invoice]", conn)
 
 
 # df = pd.DataFrame()
