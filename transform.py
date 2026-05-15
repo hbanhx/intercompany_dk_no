@@ -6,6 +6,10 @@ import pandas as pd
 def transform_data():
     raw_dfs = extract.extract_data()
     # Perform transformation logic here
+    raw_dfs['gs_inv']
+
+
+
     return raw_dfs  
 
 
@@ -14,8 +18,3 @@ gs_df = dfs['gs_inv']
 
 base = os.path.dirname(os.path.abspath(__file__))
 gs_df.to_excel(os.path.join(base, 'gs_invoice.xlsx'), index=False)
-# dfs['gs_inv'].to_excel("test.xlsx", index=False)
-print(gs_df.head())
-print(gs_df.shape)
-print(gs_df.columns)
-print(gs_df.info())
