@@ -16,6 +16,7 @@ def columns_mapping():
         "invoice_gs_External Document No_": "External Document No. GS",
         "invoice_gs_Currency Code": "Currency GS",
         "invoice_gs_Sales Invoice Line#Amount": "Amount GS",
+        "invoice_gs_Sales Invoice Line#Amount Including VAT": "Amount Including VAT GS",
         "invoice_gs_doc_type": "Document Type GS",
 
         # PN invoice
@@ -39,6 +40,7 @@ def columns_mapping():
         "credit_memo_gs_External Document No_": "External Document No. GS",
         "credit_memo_gs_Currency Code": "Currency GS",
         "credit_memo_gs_Sales Cr_Memo Line#Amount": "Amount GS",
+        "credit_memo_gs_Sales Cr_Memo Line#Amount Including VAT": "Amount Including VAT GS",
         "credit_memo_gs_doc_type": "Document Type GS",
 
         # PN credit memo
@@ -55,10 +57,18 @@ def columns_mapping():
     }
     return mapping
 
+def filter_columns(df):
+    columns = []
+    for column in columns_mapping().values():
+        if column in df.columns and column not in columns:
+            columns.append(column)
+    if '_merge' in df.columns:
+        columns.append('_merge')  
+    return columns
+
 
 def merge_documents(gs_df, pn_df, doc_type):
-    # 
-
+    # Merge GS and PN DataFrames based on document type (invoice or credit memo)
 
     # Add document type column to identify whether the record is an invoice or credit memo
     gs_df["doc_type"] = doc_type
@@ -93,14 +103,23 @@ def concatenate_dataframes(df1, df2):
     concatenated_df = pd.concat([df1, df2], ignore_index=True)
     return concatenated_df
 
-def vat_reconciliation(df):
-    # Ret
-    columns = [column for column in columns_mapping().values() if column in df.columns]
-    columns.append('_merge')  
-    vat_df = df[columns]
+def vat_reconciliation(df1, df2):
+    # Reconcile VAT amounts between invoices and credit memos
+
+    # Rename columns for clarity
+    vat_inv_df = df1.rename(columns=columns_mapping())
+    vat_cm_df = df2.rename(columns=columns_mapping())
+
+    # Select relevant columns for the final output (optional, can be adjusted based on requirements)
+    vat_inv_columns = filter_columns(vat_inv_df)
+    vat_cm_columns = filter_columns(vat_cm_df)  
+
+    # Ensure the selected columns are in the correct order and exist in the DataFrames
+    vat_inv_df = vat_inv_df[vat_inv_columns]
+    vat_cm_df = vat_cm_df[vat_cm_columns]
+    vat_df = pd.concat([vat_inv_df, vat_cm_df], ignore_index=True)
+
     return vat_df
-
-
 
 def transform_data():
     # Transformation pipeline
@@ -112,22 +131,18 @@ def transform_data():
     inv_df = merge_documents(raw_dfs['gs_inv'], raw_dfs['pn_inv'], 'invoice')
     cm_df = merge_documents(raw_dfs['gs_cm'], raw_dfs['pn_cm'], 'credit_memo')
 
-    # Rename columns for clarity
-    inv_df = inv_df.rename(columns=columns_mapping())
-    cm_df = cm_df.rename(columns=columns_mapping())
-
-    # Select relevant columns for the final output (optional, can be adjusted based on requirements)
-
     # Concatenate the merged DataFrames to create a unified dataset
     concatenated_df = concatenate_dataframes(inv_df, cm_df)
 
     # Perform VAT reconciliation
-    vat_df = vat_reconciliation(concatenated_df)
+    vat_df = vat_reconciliation(df1=inv_df, df2=cm_df)
 
     # New intercompany transaction for posting
+    # TODO: Create a new DataFrame for intercompany transactions based on the reconciled VAT data and other relevant fields
 
 
     return inv_df, cm_df, concatenated_df, vat_df
+
 
 
 inv_df, cm_df, concatenated_df, vat_df = transform_data()
@@ -136,8 +151,9 @@ base = os.path.dirname(os.path.abspath(__file__))
 inv_df.to_excel(os.path.join(base, 'invoice.xlsx'), index=False)
 cm_df.to_excel(os.path.join(base, 'credit_memo.xlsx'), index=False)
 concatenated_df.to_excel(os.path.join(base, 'concatenated.xlsx'), index=False)
-vat_df.to_excel(os.path.join(base, 'vat_reconciliation.xlsx'), index=False)
-print(inv_df.info())
-print(cm_df.info())
-print(concatenated_df.info())
-print(vat_df.info())
+# vat_df.to_excel(os.path.join(base, 'vat_reconciliation.xlsx'), index=False)
+vat_df.sort_values(by='Posting Date GS', ascending=True).to_excel(os.path.join(base, 'vat_reconciliation.xlsx'), index=False)
+# print(inv_df.info())
+# print(cm_df.info())
+# print(concatenated_df.info())
+# print(vat_df.info())
