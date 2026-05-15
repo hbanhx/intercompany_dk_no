@@ -110,6 +110,9 @@ def vat_reconciliation(df1, df2):
     vat_inv_df = df1.rename(columns=columns_mapping())
     vat_cm_df = df2.rename(columns=columns_mapping())
 
+
+
+
     # Select relevant columns for the final output (optional, can be adjusted based on requirements)
     vat_inv_columns = filter_columns(vat_inv_df)
     vat_cm_columns = filter_columns(vat_cm_df)  
@@ -120,6 +123,27 @@ def vat_reconciliation(df1, df2):
     vat_df = pd.concat([vat_inv_df, vat_cm_df], ignore_index=True)
 
     return vat_df
+
+    # MAKE UNIFIED VAT COLUMNS
+# def vat_reconciliation(df1, df2):
+#     df1 = df1.rename(columns=columns_mapping())
+#     df2 = df2.rename(columns=columns_mapping())
+
+#     unified_columns = []
+#     for col in columns_mapping().values():
+#         if col in df1.columns or col in df2.columns:
+#             if col not in unified_columns:
+#                 unified_columns.append(col)
+
+#     if "_merge" in df1.columns or "_merge" in df2.columns:
+#         unified_columns.append("_merge")
+
+#     df1 = df1.reindex(columns=unified_columns)
+#     df2 = df2.reindex(columns=unified_columns)
+
+#     return pd.concat([df1, df2], ignore_index=True)
+
+
 
 def transform_data():
     # Transformation pipeline
