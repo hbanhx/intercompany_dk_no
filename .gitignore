@@ -25,4 +25,5 @@ data/
 .DS_Store
 Thumbs.db
 
+# Development files
 Notes
