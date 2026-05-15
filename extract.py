@@ -26,10 +26,10 @@ def create_df(connection_prefix, db):
 
 def extract_data():
     # SQL statements for each table
-    sql_gs_inv = 'SELECT * FROM [dbo].[gs_sales_invoice]'
-    sql_gs_cm = 'SELECT * FROM [dbo].[gs_sales_credit_memo]'
-    sql_pn_inv = 'SELECT * FROM [dbo].[pn_sales_invoice]'
-    sql_pn_cm = 'SELECT * FROM [dbo].[pn_sales_credit_memo]'
+    sql_gs_inv = "SELECT * FROM [dbo].[gs_sales_invoice] WHERE [Posting Date] >= '2025-07-01'"
+    sql_gs_cm = "SELECT * FROM [dbo].[gs_sales_credit_memo] WHERE [Posting Date] >= '2025-07-01'"
+    sql_pn_inv = "SELECT * FROM [dbo].[pn_sales_invoice] WHERE [Posting Date] >= '2025-07-01'"
+    sql_pn_cm = "SELECT * FROM [dbo].[pn_sales_credit_memo] WHERE [Posting Date] >= '2025-07-01'"
     
     # Create DataFrames for each table and return as a dictionary
     return {

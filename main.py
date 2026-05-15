@@ -1,5 +1,5 @@
-from extract import extract_data
-import extract
+from extract import extract_data 
+from transform import transform_data
 
 
 # def run_extract():
@@ -13,7 +13,8 @@ import extract
 
 if __name__ == "__main__":
     pass
-    # raw_dfs = extract_data()
+    raw_dfs = extract_data()
+    inv_df, cm_df, concatenated_df = transform_data() 
 
 
     # if raw_dfs is not None:
