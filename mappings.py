@@ -1,7 +1,6 @@
 
-
-def cm_columns_mapping():
-    mapping = {
+class Mappings:
+    CM = {
         # GS credit memo
         "credit_memo_gs_Sales Cr_Memo Line#Amount": "Amount GS",
         "credit_memo_gs_Sales Cr_Memo Line#Amount Including VAT": "Amount Including VAT GS",
@@ -12,10 +11,8 @@ def cm_columns_mapping():
         "credit_memo_pn_Sales Cr_Memo Line#Amount Including VAT": "Amount Including VAT PN",
         "credit_memo_pn_Sales Cr_Memo Line#Unit Price": "Unit Price"
     }
-    return mapping
 
-def vat_columns_mapping():
-    mapping = {
+    VAT = {
         # GS invoice
         "invoice_gs_Posting Date": "Posting Date GS",
         "invoice_gs_No_": "Document No. GS",
@@ -64,11 +61,8 @@ def vat_columns_mapping():
         "credit_memo_pn_Sales Cr_Memo Line#Amount Including VAT": "Amount Including VAT PN",
         "credit_memo_pn_doc_type": "Document Type PN"
     }
-    return mapping
 
-
-def import_columns_mapping():
-    mapping = {
+    IMPORT = {
         # GS invoice header
         "invoice_gs_doc_type": "Document Type GS",        
         "invoice_gs_No_": "Document No. GS",
@@ -122,4 +116,3 @@ def import_columns_mapping():
         "credit_memo_gs_Sales Cr_Memo Line#Quantity": "Quantity GS",
         "credit_memo_gs_Sales Cr_Memo Line#Unit Price": "Unit Price GS"
     }
-    return mapping

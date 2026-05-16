@@ -1,11 +1,13 @@
+import logging
 import extract as extract 
 import pandas as pd
-import numpy as np
-from mappings import vat_columns_mapping, cm_columns_mapping, import_columns_mapping
+from mappings import Mappings
 
 
 def merge_documents(gs_df, pn_df, doc_type):
     # Merge GS and PN DataFrames based on document type (invoice or credit memo)
+
+    logging.info(f"Merging {doc_type} documents from both entities")
 
     # Add document type column to identify whether the record is an invoice or credit memo
     gs_df["doc_type"] = doc_type
@@ -39,7 +41,7 @@ def merge_documents(gs_df, pn_df, doc_type):
 def cm_amount_to_negative(cm_df):
     # Convert credit memo amounts to negative for reconciliation
 
-    for column in cm_columns_mapping().keys():
+    for column in Mappings.CM.keys():
         if column in cm_df.columns:
             cm_df[column] = cm_df[column] * -1
 
@@ -48,11 +50,13 @@ def cm_amount_to_negative(cm_df):
 
 def vat_reconciliation(inv_df, cm_df):
     # Rename columns and create a unified set of columns for both DataFrames
-    inv_df = inv_df.rename(columns=vat_columns_mapping())
-    cm_df = cm_df.rename(columns=vat_columns_mapping())
+
+    logging.info("Performing VAT reconciliation")
+    inv_df = inv_df.rename(columns=Mappings.VAT)
+    cm_df = cm_df.rename(columns=Mappings.VAT)
 
     vat_columns = []
-    for column in vat_columns_mapping().values():
+    for column in Mappings.VAT.values():
         if column in inv_df.columns or column in cm_df.columns:
             if column not in vat_columns:
                 vat_columns.append(column)
@@ -68,26 +72,25 @@ def vat_reconciliation(inv_df, cm_df):
     # Calculate VAT differences and control flags
     vat_df['Difference in Amount'] = vat_df['Amount GS'] - vat_df['Amount PN']
     vat_df['VAT Amount PN'] = vat_df['Amount Including VAT PN'] - vat_df['Amount PN']
-    vat_df["Control"] = np.where(
-            vat_df["Document No. GS"] == vat_df["Order No. PN"],
-            np.where(
-                vat_df["Amount GS"] == vat_df["Amount PN"],
-            "Match",
-            "Mismatch"
-        ),
-        "Import"
-    )
+    same_doc = vat_df["Document No. GS"] == vat_df["Order No. PN"]
+    same_amount = vat_df["Amount GS"] == vat_df["Amount PN"]
 
+    vat_df["Control"] = "Import"
+    vat_df.loc[same_doc & same_amount, "Control"] = "Match"
+    vat_df.loc[same_doc & ~same_amount, "Control"] = "Mismatch"
+
+    logging.info(f"VAT reconciliation complete")
     return vat_df.sort_values(by=['Posting Date GS', 'Order No. GS'], ascending=True)
 
 
 def import_orders(inv_df, cm_df, vat_df):
     # Rename columns and create a unified set of columns for both DataFrames
-    inv_df = inv_df.rename(columns=import_columns_mapping())
-    cm_df = cm_df.rename(columns=import_columns_mapping())
+    logging.info("Preparing import orders")
+    inv_df = inv_df.rename(columns=Mappings.IMPORT)
+    cm_df = cm_df.rename(columns=Mappings.IMPORT)
 
     import_columns = []
-    for column in import_columns_mapping().values():
+    for column in Mappings.IMPORT.values():
         if column in inv_df.columns or column in cm_df.columns:
             if column not in import_columns:
                 import_columns.append(column)
@@ -103,19 +106,23 @@ def import_orders(inv_df, cm_df, vat_df):
     # Filter import_df by matching keys
     import_df = import_df.merge(import_orders, on=["Document No. GS"], how="inner")
     
+    logging.info(f"Import orders complete: {len(import_df)} records found")
     return import_df
 
 
 def transform_data():
     # Transformation pipeline
-
+    logging.info("Starting data transformation")
+    
     # Extract data using the extract module
     raw_dfs = extract.extract_data()
+    logging.info("Raw data extraction complete")
 
     # Merge invoices and credit memos from both company codes
+    # logging.info("Merging invoice and credit memo documents")
     inv_df = merge_documents(raw_dfs['gs_inv'], raw_dfs['pn_inv'], 'invoice')
     cm_df = merge_documents(raw_dfs['gs_cm'], raw_dfs['pn_cm'], 'credit_memo')
-
+    
     # Convert credit memo amounts to negative for reconciliation
     cm_df = cm_amount_to_negative(cm_df)
 
@@ -125,4 +132,5 @@ def transform_data():
     # Perform import order
     import_df = import_orders(inv_df, cm_df, vat_df)
 
+    logging.info("Data transformation complete")
     return inv_df, cm_df, vat_df, import_df
