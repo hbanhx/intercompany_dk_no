@@ -40,7 +40,7 @@ def extract_data():
     }
 
 # # Example usage
-dfs = extract_data()
+# dfs = extract_data()
 # base = os.path.dirname(os.path.abspath(__file__))
 # dfs['gs_inv'].to_excel(os.path.join(base, 'gs_sales_invoice.xlsx'), index=False)
 # print(dfs['gs_inv'].info())
