@@ -1,24 +1,15 @@
+from numpy import load
 from extract import extract_data 
 from transform import transform_data
+from load import load_data
+import os
 
-
-# def run_extract():
-    
-
-#     print(df['gs_inv_raw'].head())
-#     print(df['gs_cm_raw'].info())
-#     print(df['pn_inv_raw'].info())
-#     print(df['pn_cm_raw'].info())
 
 
 if __name__ == "__main__":
-    pass
-    raw_dfs = extract_data()
-    inv_df, cm_df, concatenated_df = transform_data() 
+    
+    # Test the transformation pipeline and save outputs to Excel files
 
-
-    # if raw_dfs is not None:
-    #     print(raw_dfs['gs_inv'].info())
-    #     print(raw_dfs['gs_cm'].info())
-    #     print(raw_dfs['pn_inv'].info())
-    #     print(raw_dfs['pn_cm'].info())
+    inv_df, cm_df, vat_df, import_df = transform_data()
+    load_data(inv_df, cm_df, vat_df, import_df)
+ 

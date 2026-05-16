@@ -2,7 +2,7 @@ import pyodbc
 from dotenv import load_dotenv
 import os
 import pandas as pd
-import openpyxl
+
 
 load_dotenv()
 
@@ -38,12 +38,3 @@ def extract_data():
         'pn_inv': create_df('PN', sql_pn_inv),
         'pn_cm': create_df('PN', sql_pn_cm)
     }
-
-# # Example usage
-# dfs = extract_data()
-# base = os.path.dirname(os.path.abspath(__file__))
-# dfs['gs_inv'].to_excel(os.path.join(base, 'gs_sales_invoice.xlsx'), index=False)
-# print(dfs['gs_inv'].info())
-# print(dfs['gs_cm'].info())
-# print(dfs['pn_inv'].info())
-# print(dfs ['pn_cm'].info())
