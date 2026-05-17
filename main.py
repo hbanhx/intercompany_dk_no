@@ -25,3 +25,4 @@ if __name__ == "__main__":
     
     logging.info("ETL pipeline completed successfully. VAT reconciled: {} records. Import orders: {} records"
         .format(len(vat_df[vat_df['_merge'] == 'both']), len(import_df)))
+    
