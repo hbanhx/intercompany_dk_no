@@ -18,7 +18,7 @@ data/
 *.csv
 *.xlsx
 
-# Logs
+# logs
 *.log
 
 # OS files
@@ -26,4 +26,10 @@ data/
 Thumbs.db
 
 # Development files
-Notes/
+notes/
+
+# Ignore config file with sensitive info
+config.yaml
+
+# output files
+output/
