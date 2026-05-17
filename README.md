@@ -1,46 +1,62 @@
 GS → PN Intercompany Invoice Synchronization & Reconciliation
 
-This repository contains the Python implementation of the GS Denmark → PN Norway intercompany invoice synchronization and reconciliation system. The solution validates the integrity of invoice and credit memo transfers between GS NAV and PN NAV, ensuring that PN NAV remains a complete and accurate mirror of GS NAV for domestic invoicing and VAT reporting. All SQL queries use fake tables, and all sample data is fully masked (GDPR‑safe).
+This project contains a Python ETL pipeline that compares invoice and credit memo data between GS Denmark and PN Norway. It checks that the data sent from GS NAV to PN NAV is complete and correct for domestic invoicing and VAT reporting. All SQL tables used in this project are fake, and all sample data is fully masked.
 
 Core Capabilities
 
-Line‑level reconciliation of GS and PN invoice data
+    Line‑by‑line comparison of GS and PN invoice and credit memo data
 
-Detection of missing or mismatched PN lines
+    Finding missing or mismatched lines in PN
 
-Validation of VAT‑critical fields
+    Checking fields that affect VAT
 
-Preparation of PN posting payloads for failed transfers
+    Creating PN posting files for documents that did not transfer
 
-Schema normalization across GS and PN datasets
+    Making GS and PN data follow the same structure using mapping rules
 
-Robust merge logic using NAV‑native keys (DocumentNo + LineNo)
+    Merging data using NAV keys (DocumentNo + LineNo)
 
-SQL‑based extraction via config‑driven queries
+    Running SQL queries through a simple config file
+
+How It Works
+
+    extract.py reads SQL queries from config.yaml and loads data from GS and PN
+
+    transform.py merges invoices and credit memos, adjusts credit memo amounts, performs VAT checks, and finds missing PN documents
+
+    load.py exports the final datasets to Excel files in the output folder
+
+    mappings.py contains all column mapping rules for invoices, credit memos, VAT, and import orders
 
 Why This Matters
-PN Norway acts as the domestic invoicing entity for Norwegian end‑customers.
-GS Denmark handles fulfillment and posts the financial transaction.
-The GS → PN transfer tool must therefore:
+    PN Norway sends invoices to Norwegian customers.
+    GS Denmark ships the goods and posts the financial entry.
+    Because of this setup, PN must receive correct data from GS to:
 
-Recreate GS invoices in PN NAV with full fidelity
+    Rebuild GS invoices in PN NAV
 
-Apply Norwegian VAT rules
+    Apply Norwegian VAT rules
 
-Enable PN to issue compliant domestic invoices
+    Send proper invoices to customers
 
-Maintain strict data integrity
-
-This project ensures that every GS invoice is transferred correctly and that PN NAV remains a reliable, compliant financial ledger.
+    Keep financial data accurate
 
 Designed For
 
-Intercompany NAV/BC environments
+    NAV/Business Central setups between two companies
 
-EDI‑driven order flows
+    Automated invoice and credit memo flows
 
-Cross‑border VAT compliance
+    VAT handling across countries
 
-High‑integrity financial data pipelines
+    Financial data checks
 
-Automated invoice distribution systems
+    Systems that send invoices automatically
+
+Data Safety
+
+    All data in this project is masked
+
+    All SQL tables are fake
+
+    No personal or company‑sensitive data is included
