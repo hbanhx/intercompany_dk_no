@@ -1,0 +1,9 @@
+GS:
+  QUERIES:
+    gs_inv: "SELECT * FROM [dbo].[gs_sales_invoice] WHERE [Posting Date] >= '2025-03-01'"
+    gs_cm:  "SELECT * FROM [dbo].[gs_sales_credit_memo] WHERE [Posting Date] >= '2025-03-01'"
+
+PN:
+  QUERIES:
+    pn_inv: "SELECT * FROM [dbo].[pn_sales_invoice] WHERE [Posting Date] >= '2025-03-01'"
+    pn_cm:  "SELECT * FROM [dbo].[pn_sales_credit_memo] WHERE [Posting Date] >= '2025-03-01'"

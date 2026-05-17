@@ -1,10 +1,12 @@
 import logging
-
+import yaml
 import pyodbc 
 from dotenv import load_dotenv
 import os
 import pandas as pd
 
+with open("config.yaml", "r") as f:
+    CONFIG = yaml.safe_load(f)
 
 load_dotenv()
 
@@ -29,17 +31,16 @@ def create_df(connection_prefix, db):
 
 def extract_data():
     logging.info("Starting data extraction")
-    # SQL statements for each table
-    sql_gs_inv = "SELECT * FROM [dbo].[gs_sales_invoice] WHERE [Posting Date] >= '2025-03-01'"
-    sql_gs_cm = "SELECT * FROM [dbo].[gs_sales_credit_memo] WHERE [Posting Date] >= '2025-03-01'"
-    sql_pn_inv = "SELECT * FROM [dbo].[pn_sales_invoice] WHERE [Posting Date] >= '2025-03-01'"
-    sql_pn_cm = "SELECT * FROM [dbo].[pn_sales_credit_memo] WHERE [Posting Date] >= '2025-03-01'"
-    
-    # Create DataFrames for each table and return as a dictionary
-    logging.info("Extracting data from databases")
-    return {
-        'gs_inv': create_df('GS', sql_gs_inv),
-        'gs_cm': create_df('GS', sql_gs_cm),
-        'pn_inv': create_df('PN', sql_pn_inv),
-        'pn_cm': create_df('PN', sql_pn_cm)
-    }
+
+    raw_df = {}
+
+    # SQL queries are defined in the config file, loop through each entity and query to extract data
+    # Create DataFrames for each query and store in a dictionary
+    for prefix, settings in CONFIG.items():
+        for key, query in settings["QUERIES"].items():
+            logging.info(f"Extracting {key} from {prefix}")
+            raw_df[key] = create_df(prefix, query)
+
+
+    logging.info(f"Extraction complete: {len(raw_df)} datasets loaded")
+    return raw_df

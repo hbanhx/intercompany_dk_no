@@ -1,5 +1,5 @@
 import logging
-import extract as extract 
+from extract import extract_data 
 import pandas as pd
 from mappings import Mappings
 
@@ -7,7 +7,7 @@ from mappings import Mappings
 def merge_documents(gs_df, pn_df, doc_type):
     # Merge GS and PN DataFrames based on document type (invoice or credit memo)
 
-    logging.info(f"Merging {doc_type} documents from both entities")
+    logging.info(f"Merging {doc_type} documents from entities")
 
     # Add document type column to identify whether the record is an invoice or credit memo
     gs_df["doc_type"] = doc_type
@@ -35,6 +35,7 @@ def merge_documents(gs_df, pn_df, doc_type):
         how="outer",
         indicator=True
     )
+    logging.info(f"{doc_type.capitalize()} merge complete: {len(merged_df)} rows")
     return merged_df
 
 
@@ -50,8 +51,8 @@ def cm_amount_to_negative(cm_df):
 
 def vat_reconciliation(inv_df, cm_df):
     # Rename columns and create a unified set of columns for both DataFrames
-
     logging.info("Performing VAT reconciliation")
+
     inv_df = inv_df.rename(columns=Mappings.VAT)
     cm_df = cm_df.rename(columns=Mappings.VAT)
 
@@ -79,13 +80,14 @@ def vat_reconciliation(inv_df, cm_df):
     vat_df.loc[same_doc & same_amount, "Control"] = "Match"
     vat_df.loc[same_doc & ~same_amount, "Control"] = "Mismatch"
 
-    logging.info(f"VAT reconciliation complete")
+    logging.info(f"VAT reconciliation complete: {len(vat_df)} rows")
     return vat_df.sort_values(by=['Posting Date GS', 'Order No. GS'], ascending=True)
 
 
 def import_orders(inv_df, cm_df, vat_df):
     # Rename columns and create a unified set of columns for both DataFrames
     logging.info("Preparing import orders")
+
     inv_df = inv_df.rename(columns=Mappings.IMPORT)
     cm_df = cm_df.rename(columns=Mappings.IMPORT)
 
@@ -106,7 +108,7 @@ def import_orders(inv_df, cm_df, vat_df):
     # Filter import_df by matching keys
     import_df = import_df.merge(import_orders, on=["Document No. GS"], how="inner")
     
-    logging.info(f"Import orders complete: {len(import_df)} records found")
+    logging.info(f"Import orders complete: {len(import_df)} records")
     return import_df
 
 
@@ -115,7 +117,7 @@ def transform_data():
     logging.info("Starting data transformation")
     
     # Extract data using the extract module
-    raw_dfs = extract.extract_data()
+    raw_dfs = extract_data()
     logging.info("Raw data extraction complete")
 
     # Merge invoices and credit memos from both company codes
