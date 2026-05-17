@@ -18,6 +18,7 @@ logging.basicConfig(
 )
 
 if __name__ == "__main__":
+    # Start the ETL pipeline
     logging.info("Starting ETL pipeline")
 
     inv_df, cm_df, vat_df, import_df = transform_data()
