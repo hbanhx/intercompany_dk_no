@@ -1,4 +1,4 @@
-GS → PN Intercompany Invoice Synchronization & Reconciliation
+GS → PN Intercompany Invoice Synchronization & VAT Reconciliation
 
 This project contains a Python ETL pipeline that compares invoice and credit memo data between GS Denmark and PN Norway. It checks that the data sent from GS NAV to PN NAV is complete and correct for domestic invoicing and VAT reporting. All SQL tables used in this project are fake, and all sample data is fully masked.
 
